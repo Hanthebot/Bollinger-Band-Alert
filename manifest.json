@@ -1,0 +1,6 @@
+{
+    "bot_token": "<telegram_token>",
+    "bot_id": "<telegram_bot_id>",
+    "developer": dev_chat_id,
+    "developer_id": "dev_used_id"
+}

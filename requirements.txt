@@ -1,0 +1,4 @@
+telepot
+requests
+finta
+pandas==2.2.3
