@@ -35,8 +35,8 @@ commands = {
 
 DELAY = 5
 
-BOL_UP = "[{time}] {coin}: now {price:.02f} is above the upper bound {upper:.02f} of the Bollinger Band."
-BOL_DOWN = "[{time}] {coin}: now {price:.02f} is below the lower bound {lower:.02f} of the Bollinger Band."
+BOL_UP = "[{time}] {coin} is now {price:.02f}, above the upper bound {upper:.02f} of the Bollinger Band."
+BOL_DOWN = "[{time}] {coin} is now {price:.02f}, below the lower bound {lower:.02f} of the Bollinger Band."
 COUNT_MAX = 200
 
 def handle_msg(chat_id, command, msg):
