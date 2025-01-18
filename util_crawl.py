@@ -45,7 +45,3 @@ def getAvailable(cur="KRW"):
     pairs = [pair for pair in pairs if pair.split("-")[0] == cur]
     avail_list = [pair.split("-")[1] for pair in pairs]
     return avail_list
-
-
-
-

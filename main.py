@@ -13,15 +13,18 @@ light_data = {
 }
 
 price_data = {}
+bol_data = {}
 
 avail_list = getAvailable()
 
 commands = {
         "refresh_code": "",
         "code": "",
-        "add_coin": "add_coin [BTC]",
-        "delete_coin":"delete_coin [BTC]",
-        "my_data": "my_data",
+        "addcoin": "addcoin [BTC]",
+        "delcoin":"delcoin [BTC]",
+        "mydata": "mydata",
+        "avail": "avail",
+        "curprice": "curprice",
         "candle": "candle [15m]",
         "count": "count [20]",
         "std": "std [2.0]",
@@ -37,6 +40,7 @@ DELAY = 5
 
 BOL_UP = "[{time}] {coin} is now {price:.02f}, above the upper bound {upper:.02f} of the Bollinger Band."
 BOL_DOWN = "[{time}] {coin} is now {price:.02f}, below the lower bound {lower:.02f} of the Bollinger Band."
+PRICE_REPORT = "{coin} now: {price}; Band: [{lower}, {upper}]"
 COUNT_MAX = 200
 
 def handle_msg(chat_id, command, msg):
@@ -53,7 +57,7 @@ def handle_msg(chat_id, command, msg):
     elif command == "refresh_code":
         light_data["invitation_code"] = randString()
         bot.sendMessage(chat_id, "Done: " + light_data["invitation_code"])
-    elif command == "add_coin":
+    elif command == "addcoin":
         if (len(msg.split(" ")) == 1 or (msg.split(" ")[1].upper() not in avail_list)):
             bot.sendMessage(chat_id, "Invalid coin")
             return
@@ -64,7 +68,7 @@ def handle_msg(chat_id, command, msg):
         userData["userData"][str(chat_id)]["coins"].append(coin)
         check_crawl_list(userData)
         bot.sendMessage(chat_id, "coins: \n" + "\n".join(userData["userData"][str(chat_id)]["coins"]))
-    elif command == "delete_coin":
+    elif command == "delcoin":
         if (len(msg.split(" ")) == 1 or (msg.split(" ")[1].upper() not in avail_list)):
             bot.sendMessage(chat_id, "Invalid coin")
             return
@@ -79,8 +83,16 @@ def handle_msg(chat_id, command, msg):
             return
     elif command == "my_coins":
         bot.sendMessage(chat_id, "coins: \n" + "\n".join(userData["userData"][str(chat_id)]["coins"]))
-    elif command == "my_data":
+    elif command == "mydata":
         bot.sendMessage(chat_id, "Data: " + json.dumps(userData["userData"][str(chat_id)], indent=4))
+    elif command == "avail":
+        bot.sendMessage(chat_id, "Supported coins: " + ", ".join(avail_list))
+    elif command == "curprice":
+        reports = [
+            PRICE_REPORT.format(coin=coin, price=price_data[coin], lower=bol_data[coin]["BB_LOWER"], upper=bol_data[coin]["BB_UPPER"])
+            for coin in userData["userData"][str(chat_id)]["coins"]
+        ]
+        bot.sendMessage(chat_id, "\n".join(reports))
     elif command == "candle":
         if len(msg.split(" ")) == 1:
             bot.sendMessage(chat_id, "Candle: " + userData["userData"][str(chat_id)]["candle"])
@@ -153,7 +165,7 @@ def handle(msg):
             else:
                 bot.sendMessage(chat_id, "No such command, try 'help'")
         elif command == light_data["invitation_code"] or chat_id in userData["white_list"]:
-            bot.sendMessage(manifest["developer"], "Access granted to " + chat_id)
+            bot.sendMessage(manifest["developer"], f"Access granted to {chat_id}")
             bot.sendMessage(chat_id, "Access granted")
             userData["subscribers"].append(chat_id)
             userData["userData"][str(chat_id)] = user_default(chat_id)
@@ -191,16 +203,16 @@ if __name__ == "__main__":
                     count=u_info["count"],
                     BTC=coin
                 )
-                bol = get_indicator(ohlc, {"period": u_info["count"], "std": u_info["std"]})
-                signal = into_signal(bol, price_data[coin])
+                bol_data[coin] = get_indicator(ohlc, {"period": u_info["count"], "std": u_info["std"]})
+                signal = into_signal(bol_data[coin], price_data[coin])
                 # test against the alert condition
                 if signal == 1:
                     bot.sendMessage(
                         u_info["id"], 
-                        BOL_UP.format(time=time.strftime('%Y-%m-%d %H:%M:%S'), coin=coin, price=price_data[coin], upper=bol["BB_UPPER"]))
+                        BOL_UP.format(time=time.strftime('%Y-%m-%d %H:%M:%S'), coin=coin, price=price_data[coin], upper=bol_data[coin]["BB_UPPER"]))
                 elif signal == -1:
                     bot.sendMessage(
                         u_info["id"], 
-                        BOL_DOWN.format(time=time.strftime('%Y-%m-%d %H:%M:%S'), coin=coin, price=price_data[coin], upper=bol["BB_LOWER"])
+                        BOL_DOWN.format(time=time.strftime('%Y-%m-%d %H:%M:%S'), coin=coin, price=price_data[coin], lower=bol_data[coin]["BB_LOWER"])
                     )
         time.sleep(DELAY)
