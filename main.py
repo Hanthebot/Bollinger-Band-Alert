@@ -3,7 +3,7 @@ import json
 import telepot
 from telepot.loop import MessageLoop
 
-from util import randString, load_userData, load_manifest, save_userData, user_default, set_user_default, check_crawl_list, verifyCandle
+from util import randString, load_userData, load_manifest, save_userData, user_default, set_user_default, check_crawl_list, verifyCandle, VALID_CANDLES
 from util_crawl import getTickers, getCandlesOHLC, getAvailable
 from bollinger import get_indicator, into_signal
 
@@ -99,7 +99,7 @@ def handle_msg(chat_id, command, msg):
         else:
             try:
                 if verifyCandle(msg.split(" ")[1]) is None:
-                    bot.sendMessage(chat_id, "Invalid candle value, valid values are: " + ",".join(list(VALID_CANDLES.keys())))
+                    bot.sendMessage(chat_id, "Invalid candle value, valid values (for minutes) are: " + ",".join([str(candle) for candle in VALID_CANDLES]))
                     return
                 userData["userData"][str(chat_id)]["candle"] = msg.split(" ")[1]
                 save_userData(userData)
@@ -126,7 +126,7 @@ def handle_msg(chat_id, command, msg):
             try:
                 userData["userData"][str(chat_id)]["std"] = float(msg.split(" ")[1])
                 save_userData(userData)
-                bot.sendMessage(chat_id, f"Standard deviation set to {msg.split(' ')[1]})
+                bot.sendMessage(chat_id, f"Standard deviation set to {msg.split(' ')[1]}")
             except (IndexError, ValueError):
                 bot.sendMessage(chat_id, "Invalid standard deviation value")
     elif command == "share_bot":

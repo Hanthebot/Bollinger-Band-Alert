@@ -88,13 +88,15 @@ TIME_UNITS = {
         'y': 'years'
     }
 
+VALID_CANDLES = [1, 3, 5, 10, 15, 30, 60, 240]
+
 def verifyCandle(candle: str)->tuple:
     if len(candle) <= 1: return None
     try:
         length, unit = int(candle[:-1]), candle[-1]
     except ValueError:
         return None
-    if unit == 'm' and length not in [1, 3, 5, 10, 15, 30, 60, 240]:
+    if unit == 'm' and length not in VALID_CANDLES:
         return None
     unit = TIME_UNITS.get(unit, None)
     if unit is None:
