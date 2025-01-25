@@ -112,7 +112,7 @@ def handle_msg(chat_id, command, msg):
         else:
             try:
                 if not 0 < int(msg.split(" ")[1]) <= COUNT_MAX:
-                    bot.sendMessage(chat_id, "Invalid count value, valid values are 0 < count <= " + str(COUNT_MAX))
+                    bot.sendMessage(chat_id, f"Invalid count value, valid values are 0 < count <= f{(COUNT_MAX)}")
                     return
                 userData["userData"][str(chat_id)]["count"] = int(msg.split(" ")[1])
                 save_userData(userData)
@@ -126,20 +126,20 @@ def handle_msg(chat_id, command, msg):
             try:
                 userData["userData"][str(chat_id)]["std"] = float(msg.split(" ")[1])
                 save_userData(userData)
-                bot.sendMessage(chat_id, "Standard deviation set to " + msg.split(" ")[1])
+                bot.sendMessage(chat_id, f"Standard deviation set to {msg.split(' ')[1]})
             except (IndexError, ValueError):
                 bot.sendMessage(chat_id, "Invalid standard deviation value")
     elif command == "share_bot":
-        bot.sendMessage(chat_id, "https://t.me/" + manifest["bot_id"])
+        bot.sendMessage(chat_id, f"https://t.me/{manifest['bot_id']}")
     elif command == "terminate":
         if chat_id == manifest["developer"]:
             bot.sendMessage(chat_id, "Bye")
             light_data["alive"] = False
         else:
-            bot.sendMessage(chat_id, "Access denied. Please contact the developer.\n" + f"t.me/{manifest['developer_id']}")
+            bot.sendMessage(chat_id, f"Access denied. Please contact the developer.\nt.me/{manifest['developer_id']}")
     elif command in ["white_list", "add_white"]:
         if chat_id != manifest["developer"]:
-            bot.sendMessage(chat_id, "Access denied. Please contact the developer.\n" + f"t.me/{manifest['developer_id']}")
+            bot.sendMessage(chat_id, f"Access denied. Please contact the developer.\t.me/{manifest['developer_id']}")
             return
         if command == "add_white":
             if (not (len(msg.split(" ")) > 1 and msg.split(" ")[1].isnumeric())):
@@ -172,8 +172,8 @@ def handle(msg):
             save_userData(userData)
             light_data["invitation_code"] = randString()
         else:
-            bot.sendMessage(manifest["developer"], chat_id + " attempted access")
-            bot.sendMessage(chat_id, "Access denied. Please contact the developer.\n" + f"t.me/{manifest['developer_id']}")
+            bot.sendMessage(manifest["developer"], f"{chat_id} attempted access")
+            bot.sendMessage(chat_id, f"Access denied. Please contact the developer.\nt.me/{manifest['developer_id']}")
 
 if __name__ == "__main__":
     manifest = load_manifest()
